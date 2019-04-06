@@ -1,9 +1,6 @@
 package pl.sda.webApp.controlers;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.sda.webApp.model.Animal;
 
 @RestController
@@ -16,8 +13,10 @@ public class MyFirstController {
         return animal;
     }
 
-    @GetMapping("/favourite/{number}")
-    public String favourite(@PathVariable("number") String number) {
-        return number;
+    @RequestMapping(path = "favourite/{number}", method = RequestMethod.GET)
+    public String favourite(
+            @PathVariable("number") String number,
+            @RequestParam(name = "name", defaultValue = "default") String name) {
+        return " Hello," + name + " your favourite number is: " + number;
     }
 }

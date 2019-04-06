@@ -6,7 +6,7 @@ import pl.sda.webApp.model.Animal;
 @RestController
 public class MyFirstController {
 
-    @GetMapping("/animal")
+    @GetMapping(value = "/animal", produces = "application/xml")
     public Animal animal(
             @RequestParam(name = "name", defaultValue = "default") String name) {
         Animal animal = new Animal(name, 8);

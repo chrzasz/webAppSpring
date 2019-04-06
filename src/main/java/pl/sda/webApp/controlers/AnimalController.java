@@ -1,10 +1,13 @@
 package pl.sda.webApp.controlers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.sda.webApp.model.Animal;
+import pl.sda.webApp.service.AnimalService;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,46 +15,42 @@ import java.util.UUID;
 @RequestMapping("/animals")
 public class AnimalController {
 
-    private Map<UUID, Animal> animalStorage = new HashMap<>();
+    @Autowired
+    private AnimalService animalService;
 
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public Map<UUID, Animal> animals() {
-        return animalStorage;
+        return animalService.getAnimals();
     }
 
     @PostMapping("/add")
     public UUID addAnimal(@RequestBody Animal animal) {
-        UUID uuid = UUID.randomUUID();
-        animalStorage.put(uuid, animal);
-        return uuid;
+        return animalService.addAnimal(animal);
     }
 
     @DeleteMapping("/remove/{id}")
     public boolean remove(@PathVariable UUID id) {
-        if (animalStorage.containsKey(id)) {
-            animalStorage.remove(id);
-            return true;
-        } else {
-            return false;
-        }
+        return animalService.remove(id);
     }
 
     @PutMapping("/edit/{id}")
     public boolean edit(@RequestBody Animal animal, @PathVariable UUID id) {
-        if (!animalStorage.containsKey(id) || animal == null) {
-            throw new IllegalArgumentException("Wrong argument");
+        try {
+            return animalService.edit(id, animal);
+        } catch (Exception ex) {
+            return false;
         }
-        animalStorage.replace(id, animal);
-        return true;
     }
 
     @PutMapping("/edit-name/{id}")
-    public boolean editName(@RequestParam("name") String name, @PathVariable UUID id) {
-        if (!animalStorage.containsKey(id)) {
-            throw new IllegalArgumentException("Wrong argument");
+    public ResponseEntity editName(@RequestParam("name") String name, @PathVariable UUID id) {
+        ResponseEntity result = animalService.editName(id, name);
+
+        if (result == null) {
+            return ResponseEntity.badRequest().body("Bad request");
+        } else {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(result);
         }
-        animalStorage.get(id).setName(name);
-        return true;
     }
 
 
